@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { client, urlFor } from "./lib/sanity";
+import { BlogCard } from "@/constants";
 
 async function getData() {
   const querry = `
@@ -6,36 +8,47 @@ async function getData() {
   title,
     smallDescription,
     "currentSlug" : slug.current,
+    author,
+    titleImage
 }
 
-  `;
+`;
+  const data = await client.fetch(querry);
+  return data;
 }
-export default function Home() {
+export default async function Home() {
+  const articles: BlogCard[] = await getData();
+
   return (
     <div className="px-10 max-w-[1440px] pt-10">
       <div className="grid grid-cols-3 place-items-center">
-        <div className="flex flex-col gap-4 max-w-[320px] bg-gray-50 p-2">
-          <h2 className=" text-xl">What to expect in the Next js 15 release</h2>
-          <Image
-            src={"/Images/image.png"}
-            width={300}
-            height={260}
-            className="object-cover rounded-md "
-            alt={"Blog post image"}
-          />
-          <p className="line-clamp-3">
-            Next.js 15 introduces React 19 support, caching improvements, a
-            stable release for Turbopack and more
-          </p>
-          <div className="flex justify-between items-center">
-            <p className="">By: trejan_dev</p>
-            <div className="">
-              <button className="bg-blue-500 py-1 px-1 text-white rounded-md hover:scale-105">
-                Read more
-              </button>
+        {articles &&
+          articles.map((article) => (
+            <div
+              key={article.title}
+              className="flex flex-col gap-4 max-w-[320px] bg-gray-50 px-2 py-4 rounded-lg"
+            >
+              <h2 className=" text-xl">{article.title}</h2>
+              <div className="max-h-[260px]">
+                <Image
+                  src={urlFor(article.titleImage).url()}
+                  width={300}
+                  height={260}
+                  className="object-cover rounded-md "
+                  alt={"Blog post image"}
+                />
+              </div>
+              <p className="line-clamp-3">{article.smallDescription}</p>
+              <div className="flex justify-between items-center">
+                <p className="">By: {article.author}</p>
+                <div className="">
+                  <button className="bg-blue-500 py-1 px-1 text-white rounded-md hover:scale-105">
+                    Read more
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          ))}
       </div>
     </div>
   );

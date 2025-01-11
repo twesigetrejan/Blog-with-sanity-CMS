@@ -31,3 +31,11 @@ export const navlinks: NavLink[] = [
     route: "/",
   },
 ];
+
+export interface BlogCard {
+  title: string;
+  smallDescription: string;
+  currentSlug: string;
+  author: string;
+  titleImage: any;
+}
